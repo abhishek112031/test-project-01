@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add expenses</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        h5{
+            text-align: center;
+            color: red;
+        }
+        .container{
+            display: flex;
+            
+            background-color: rgb(102, 96, 96);
+            height:8vh;
+            width:100vw;
+            align-items: center;
+        }
+        h1{
+            text-align: center;
+        }
+        .form{
+           margin-top: 20px;
+           height: 30vh;
+           width:40vw;
+           margin-left: 40vw;
+        }
+        .box1{
+            display: flex;
+            
+            /* background-color: rgb(26, 24, 24); */
+            
+            height:4vh;
+            width:50vw;
+           
+
+          
+
+        }
+        .box2{
+            display: flex;
+            margin-left:40vw ;
+            /* background-color: rgb(187, 18, 18); */
+            height:4vh;
+            width:10vw;
+           
+
+        }
+        .box2 a{
+            margin-left:1vw ;
+            text-decoration: none;
+            color: white;
+            font-size: large;
+            
+            
+        }
+        .box1 a{
+            margin-left:4vw ;
+            text-decoration: none;
+            color: white;
+            
+        }
+        .box{
+            margin-left: 37vw;
+            margin-top: 2vh;
+            margin-bottom: 10vh;
+        }
+        #allExp{
+            margin-left: 45vw;
+            margin-top: 2vh;
+
+        }
+        h3{
+            text-align: center;
+        }
+        #buy-premium{
+            border-radius: 5px;
+            background: yellow;
+        }
+        #buy-premium:hover{
+            cursor: pointer;
+            background:green;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.2/axios.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+    <div class="container">
+        <div class="box1">
+        <a href="#">Home</a>
+        </div>
+        <div class="box2">
+            <a href="http://localhost:4000/getform">sign-up</a>
+          <a href="http://localhost:4000/getform/login">log in</a>
+        </div>
+
+    </div>
+
+
+    <h1>Add Expenses: <span id="greet"></span><span><button id="buy-premium">Buy Premium</button></span></h1>
+
+
+    <div class="box">
+        <form onsubmit="saveUserExpenses(event)">
+            <input type="number" name="amount" id="amount" placeholder="amount">
+            <input type="text" name="description" id="description" placeholder="description">
+            <button>Submit
+            </button>
+        </form>
+    </div>
+    
+    <h3>All Expenses:</h3>
+    <ul id="allExp"></ul>
+
+    <script>
+        //sign-up/login/display:-->
+        function saveUserExpenses(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('token');
+            const expenses = {
+                amount: document.getElementById('amount').value,
+                description: document.getElementById('description').value
+            }
+
+            axios.post('http://localhost:4000/user/add-expense', expenses, { headers: { "Authorization": token } })
+                .then((res) => {
+                    showOnScreen(res.data);
+
+                })
+                .catch(err => {
+                    document.body.innerHTML = `<h4>error:${err}</h4>`
+                });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            
+            const token=localStorage.getItem('token');
+            axios.get('http://localhost:4000/user/expense/get-all',{ headers: { "Authorization": token } })
+            .then(res=>{
+                document.getElementById('greet').innerHTML=`Hi ${res.data.userName}`
+                res.data.userExp.forEach(exp => {
+                    // console.log(exp);
+                    
+                    showOnScreen(exp)
+                    
+                });
+            })
+
+        })
+
+        function showOnScreen(data) {
+            document.getElementById('amount').value = "";
+            document.getElementById('description').value = "";
+
+
+
+
+            const parent = document.getElementById('allExp');
+            const child = `<li>${data.amount} Rupeese ---${data.description}</li>`;
+            parent.innerHTML += child;
+        }
+
+    //  purchasePremium:--->
+    document.getElementById("buy-premium").onclick=async function(){
+        try{
+            const token=localStorage.getItem('token');
+            // console.log("inprogress for-->",token);
+            const response= await axios.get('http://localhost:4000/user/rzp/premium-membership',{headers:{"Authorization":token}});
+            console.log("response with rzp details:--->",response);
+            // console.log("rzp paymentId-->>>",response.razorpay_payment_id);
+            var options = {
+          "key": response.data.key_id,
+          "order_id": response.data.order.id,
+          //this handler function handle payment success
+          "handler": async function (response) {
+             //if response is successful:-->
+            await axios.post('http://localhost:4000/user/rzp/premium-membership/updateTrasactionStatus', {
+              order_id: options.order_id,
+              payment_id: response.razorpay_payment_id
+            },
+              {
+                headers: { "Authorization": token }
+
+              });
+
+            alert('you are a premium user now!');
+
+            // document.getElementById('premium').innerHTML = `<h5 class="text-center text-success border border-dark border-opacity-25 border-3 rounded-pill bg-warning">You are A Premium User</h5>`
+            // document.getElementById('rzp-button').style.visibility="hidden";
+
+
+          }
+
+        }
+        const rzp1 = new Razorpay(options);
+        rzp1.open();
+        e.preventDefault();
+        rzp1.on('payment.failed', async function (response) {
+          try {
+            await axios.post('http://localhost:4000/user/rzp/updateTrasactionStatusFailed', {
+              order_id: options.order_id,
+              payment_id: response.razorpay_payment_id
+            },
+              {
+                headers: { "Authorization": token }
+
+              });
+
+            alert('something went wrong')
+          }
+          catch (err) {
+
+          }
+        })
+        
+
+
+
+
+        }
+        catch(err){
+            console.log("err-->",err)
+        }
+
+    }
+
+
+
+    </script>
+
+
+</body>
+
+</html>

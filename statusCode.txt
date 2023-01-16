@@ -1,0 +1,9 @@
+200----->request successful(get)
+
+201--->created successful(post)
+
+400--->client error(bad request)
+
+404--->api is valid but resource not found(not found)
+
+500--->internal server error,The server has encountered a situation it does not know how to handle

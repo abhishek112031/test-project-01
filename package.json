@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    
+    "@sendgrid/mail": "^7.7.0",
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mysql2": "^2.3.3",
+    "nodemon": "^2.0.20",
+    "razorpay": "^2.8.4",
+    "sequelize": "^6.28.0",
+    "uuid": "^9.0.0"
+  },
+  "name": "practice",
+  "version": "1.0.0",
+  "description": "Node-js-encription techniques",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"nodemon app.js"
+  },
+  "author": "Abhishek Adhikary",
+  "license": "ISC"
+}

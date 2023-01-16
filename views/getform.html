@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>form</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        h5{
+            text-align: center;
+            color: red;
+        }
+        .container{
+            display: flex;
+            
+            background-color: rgb(102, 96, 96);
+            height:8vh;
+            width:100vw;
+            align-items: center;
+        }
+        h1{
+            text-align: center;
+        }
+        .form{
+           margin-top: 20px;
+           height: 30vh;
+           width:40vw;
+           margin-left: 40vw;
+        }
+        .box1{
+            display: flex;
+            
+            /* background-color: rgb(26, 24, 24); */
+            
+            height:4vh;
+            width:50vw;
+           
+
+          
+
+        }
+        .box2{
+            display: flex;
+            margin-left:40vw ;
+            /* background-color: rgb(187, 18, 18); */
+            height:4vh;
+            width:10vw;
+           
+
+        }
+        .box2 a{
+            margin-left:1vw ;
+            text-decoration: none;
+            color: white;
+            font-size: large;
+            
+            
+        }
+        .box1 a{
+            margin-left:4vw ;
+            text-decoration: none;
+            color: white;
+            
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="box1">
+        <a href="#">Home</a>
+        </div>
+        <div class="box2">
+            <a href="http://localhost:4000/getform">sign-up</a>
+          <a href="http://localhost:4000/getform/login">log in</a>
+        </div>
+
+    </div>
+    <h1>sign-up</h1>
+    <div class="form">
+        <form onsubmit="saveUser(event)">
+            <input type="text" name="name" id="name" placeholder="name">
+            <input type="email" name="email" id="email" placeholder="email">
+            <input type="password" name="password" id="password" placeholder="password">
+            <button>Submit
+            </button>
+
+
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.2/axios.min.js"></script>
+    <script>
+        function saveUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const details = { name, email, password }
+
+            axios.post('http://localhost:4000/getform', details)
+                .then(res => {
+                    if (res.status === 201) {
+
+                        alert(res.data.msg);
+                        window.location.href = "http://localhost:4000/getform/login"
+
+                    }
+
+                })
+                .catch(err => {
+                    document.body.innerHTML+=`<h5>${err.response.data.msg}</h5>`
+                })
+
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+</html>
